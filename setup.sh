@@ -53,7 +53,7 @@ echo "Stopping Tomcat9 before deployment..."
 
 # Remove old deployment
 echo "Removing old deployment (if exists)..."
-rm -rf /opt/tomcat9/webapps/${APP_CONTEXT}*
+rm -rf /opt/tomcat9/webapps/*
 
 # Deploy new application
 echo "Deploying application to Tomcat9..."
