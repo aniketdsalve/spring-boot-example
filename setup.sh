@@ -38,13 +38,30 @@ wait ${last_command_pid} || print_exit 1 "not able to update the repository."
 
 
 installPackage maven
-installPackage tomcat9
+install_tomcat9_using_wget
+
+cd /home/ubuntu/spring-boot-example || exit 1
+
 mavenTarget test
 mavenTarget package
 
-if cp -rf target/hello-world-0.0.1-SNAPSHOT.war /var/lib/tomcat9/webapps/${APP_CONTEXT}.war
+PUBLIC_IP=$(curl ifconfig.me)
+
+# Stop Tomcat before deployment (recommended)
+echo "Stopping Tomcat9 before deployment..."
+/opt/tomcat9/bin/shutdown.sh
+
+# Remove old deployment
+echo "Removing old deployment (if exists)..."
+rm -rf /opt/tomcat9/webapps/${APP_CONTEXT}*
+
+# Deploy new application
+echo "Deploying application to Tomcat9..."
+/opt/tomcat9/bin/startup.sh
+
+if cp -rf target/hello-world-0.0.1-SNAPSHOT.war /opt/tomcat9/webapps/${APP_CONTEXT}.war
 then
-    echo "application Deployed successfully. you can access it on http://{IPADDRESS}/${APP_CONTEXT}"
+    echo "Application Deployed successfully. You can access it on http://${PUBLIC_IP}:8080/${APP_CONTEXT}"
 else
     print_exit 1 "not able to Deploy the application."
 fi

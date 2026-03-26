@@ -48,3 +48,50 @@ function mavenTarget(){
     wait ${last_command_pid} || print_exit 1 "${mavenCmd} fail."
 }
 
+function install_tomcat9_using_wget() {
+
+    TOMCAT_URL="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.89/bin/apache-tomcat-9.0.89.tar.gz"
+    TOMCAT_DIR="/opt/tomcat9"
+    FILE_NAME="apache-tomcat-9.0.89.tar.gz"
+
+    echo "Starting Tomcat9 installation..."
+
+    # Check if already installed
+    if [ -d "$TOMCAT_DIR" ]; then
+        echo "Tomcat9 already installed at $TOMCAT_DIR"
+        return 0
+    fi
+
+    # Move to /opt
+    cd /opt || { echo "Failed to move to /opt"; return 1; }
+
+    echo "Downloading Tomcat9..."
+    wget -q "$TOMCAT_URL" -O "$FILE_NAME"
+    if [ $? -ne 0 ]; then
+        echo "Download failed"
+        return 1
+    fi
+
+    echo "Extracting Tomcat..."
+    tar -xzf "$FILE_NAME"
+    if [ $? -ne 0 ]; then
+        echo "Extraction failed"
+        return 1
+    fi
+
+    echo "Renaming directory..."
+    mv apache-tomcat-9.0.89 tomcat9
+
+    echo "Cleaning up..."
+    rm -f "$FILE_NAME"
+
+    echo "Setting permissions..."
+    chmod +x $TOMCAT_DIR/bin/*.sh
+
+    echo "Starting Tomcat..."
+    $TOMCAT_DIR/bin/startup.sh
+
+    echo "Tomcat9 installed successfully!"
+    echo "Access: http://<IP>:8080"
+}
+
